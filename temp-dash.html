@@ -33,20 +33,15 @@ const auth = getAuth(app);
 // 🎯 STEP 1 — Handle payment success FIRST
 const params = new URLSearchParams(window.location.search);
 const status = params.get("status");
+const duration = params.get("days");
 
-if(status === "SUCCESS"){
-
-    let duration = localStorage.getItem("selectedPlanDays");
-
-    if(!duration){
-        console.log("Duration missing. Preventing redirect loop.");
-        return;  // Stop here if duration missing
-    }
+if (status === "SUCCESS" && duration) {
 
     const oldExpiry = localStorage.getItem("subscriptionExpiry");
     let baseDate = new Date();
 
-    if(oldExpiry && new Date(oldExpiry) > new Date()){
+    // If user already has active subscription, extend it
+    if (oldExpiry && new Date(oldExpiry) > new Date()) {
         baseDate = new Date(oldExpiry);
     }
 
@@ -54,10 +49,7 @@ if(status === "SUCCESS"){
 
     localStorage.setItem("subscriptionExpiry", baseDate.toISOString());
 
-    // Remove only AFTER saving expiry
-    localStorage.removeItem("selectedPlanDays");
-
-    // Clean URL
+    // Clean URL so refresh doesn’t re-add days
     window.history.replaceState({}, document.title, "temp-dash.html");
 
     alert("Subscription Activated 🎉");
