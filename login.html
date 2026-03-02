@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      font-family: Arial, sans-serif;
+    }
+
+    .card {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      text-align: center;
+      width: 320px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    .google-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      background: #ffffff;
+      cursor: pointer;
+      font-weight: bold;
+      border: 1px solid #ddd;
+      transition: 0.3s;
+    }
+
+    .google-btn:hover {
+      background: #f5f5f5;
+    }
+
+    .logout-btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      background: #e74c3c;
+      color: white;
+      cursor: pointer;
+    }
+
+    .user-info {
+      margin-top: 20px;
+    }
+
+    img {
+      border-radius: 50%;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h2>Welcome</h2>
+
+    <button class="google-btn" onclick="googleLogin()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20">
+      Sign in with Google
+    </button>
+
+    <div class="user-info" id="userInfo"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAqVGxE6pQa8aWI4qHRpl93u7SdViKoaEc",
+      authDomain: "login-setup-2230f.firebaseapp.com",
+      projectId: "login-setup-2230f",
+      storageBucket: "login-setup-2230f.firebasestorage.app",
+      messagingSenderId: "764529433359",
+      appId: "1:764529433359:web:490674f6f7a045f092bc7a",
+      measurementId: "G-8B2S3PV42R"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Google Login
+    window.googleLogin = function () {
+      const provider = new GoogleAuthProvider();
+
+      signInWithPopup(auth, provider)
+        .catch((error) => {
+          alert(error.message);
+        });
+    };
+
+    // Logout
+    window.logout = function () {
+      signOut(auth);
+    };
+
+    // Detect Login State
+    onAuthStateChanged(auth, (user) => {
+  const userInfo = document.getElementById("userInfo");
+
+  if (user) {
+
+    // Show user info
+    userInfo.innerHTML = `
+      <p><strong>${user.displayName}</strong></p>
+      <p>${user.email}</p>
+      <img src="${user.photoURL}" width="80">
+      <br>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    `;
+
+    // 🔥 Check subscription
+    checkSubscription();
+
+  } else {
+    userInfo.innerHTML = "";
+  }
+});
+
+function checkSubscription(){
+
+  const expiry = localStorage.getItem("subscriptionExpiry");
+
+  if(!expiry){
+      window.location.href = "payment.html";
+      return;
+  }
+
+  const now = new Date();
+  const expiryDate = new Date(expiry);
+
+  if(now < expiryDate){
+      window.location.href = "temp-dash.html";
+  }else{
+      localStorage.removeItem("subscriptionExpiry");
+      window.location.href = "payment.html";
+  }
+}
+  </script>
+
+</body>
+
+</html>
